@@ -1,30 +1,34 @@
+import json
+
 import requests
+from gitterpy.client import GitterClient
 
 
 class AboutCodeChatBot:
 
-    def __init__(self, token, room_ids, actions):
-        self.token = token
-        self.room_ids = room_ids
+    def __init__(self, token, room_address, actions):
+        self.gitter_client = GitterClient(token=token)
+        self.room = room_address 
         self.actions = actions
-        self.start_listening()
-        for event in  self.event_updates():
+        start_listening_for_events(self)
+        for event in  self.room_updates():
+            print(event)
             for action in actions : 
                 if action.is_triggered_by(event):
                     action.run(event)
     
-    def start_listening(self):
-        headers = {'Authorization': 'Bearer ' + self.token}
-        endpoint = f"https://stream.gitter.im/v1/rooms/{self.room_id}/chatMessages"
-        self.current_status = requests.get(endpoint, stream=True)
+def start_listening_for_events(event_runner):
+    events = event_runner.gitter_client.stream.chat_messages(event_runner.room)
+    def room_updates():
+        for event in events.iter_lines() : 
+            if event :
+                try : 
+                    data = json.loads(event)
+                    yield data
+                
+                except json.decoder.JSONDecodeError : 
+                    pass 
+                
+                
+    setattr(event_runner, "room_updates", room_updates)
     
-    def event_updates(self):
-        if not getattr(self, "current_events", None):
-            self.start_listening()
-
-        for event in self.current_status.iter_lines():
-            if event : 
-                yield event
-
-    
-    def 

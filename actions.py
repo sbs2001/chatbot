@@ -1,3 +1,5 @@
+import json
+
 import requests
 
 class Action:
@@ -10,35 +12,30 @@ class Action:
     def run(event, event_runner):
         raise NotImplementedError
 
+class WelcomeContributorAction(Action):
 
-class StartListeningToGitterRoomAction(Action):
-
-    @staticmethod
-    def is_triggered_by(event, event_runner):
-        return not getattr(event_runner, "room_updates", None):
+    def __init__(self):
+        with open("notanewbie.json") as f :
+            self.contributors = json.load(f)
     
-    @staticmethod
-    def run(event, event_runner):
+    def is_triggered_by(self, event):
+
         try: 
-            room_id = getattr(event_runner, "room_id")
-            gitter_token = getattr(event_runner, "token")
+            messenger = event['fromUser']['username']
+            if messenger in  self.contributors : 
+                print("Already contributor")
+                return False
+            
+            else:
+                msg_words = set(event['text'].split())
+                if "contribute" in msg_words : 
+                    print("Noob")
+                    return True
+                print("Other")
+                return False
 
-        except AttributeError : 
-            raise
-
-        headers = {'Authorization': 'Bearer ' + gitter_token}
-        endpoint = f"https://stream.gitter.im/v1/rooms/{room_id}/chatMessages"
-        events = requests.get(endpoint, headers=headers, stream=True)
-
-        def room_updates():
-            for event in events : 
-                if event : 
-                    yield event
-
-        setattr(event_runner, "room_updates", room_updates)
-
-
-
-
+        except KeyError:
+            print("Bad event")
+            return False
 
 
