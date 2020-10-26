@@ -15,35 +15,26 @@ def load_data_into_mem():
     return data
 
 def normalize_data(data):
-
     for i in  range(len(data)) : 
-        block = re.findall(">[^\n\n]",data[i][0])
-        if block : 
-            data[i][0] = data[i][0].replace(block[0],"")
-        
-        mentions = re.findall("@\S+",data[i][0])
-        if mentions : 
-            for mention in mentions : 
-                data[i][0] = data[i][0].replace(mention, "")
-        
-        links = re.findall("http[\S]+", data[i][0])
-        if links :
-            for link in links : 
-                data[i][0] = data[i][0].replace(link, "")
-
-
-        words = data[i][0].split()
-        words = list(map( lambda x: x.lower(),words))
-        words = list(filter( lambda x: x not in  stp ,words))
-        words = list(filter( lambda x: x.isalnum() ,words))
-        words = list(map( lambda x: x.strip(),words))
-        words = list(filter( lambda x: len(x)>0 ,words))
-        data[i][0] = " ".join(words)
+        data[i][0] = sanitize_text(data[i][0])
     return data
 
 
 
-def norm(text):
+def sanitize_text(text):
+    block = re.findall(">[^\n\n]",text)
+    if block : 
+        text = text.replace(block[0],"")
+    
+    mentions = re.findall("@\S+",text)
+    if mentions : 
+        for mention in mentions : 
+            text = text.replace(mention, "")
+    
+    links = re.findall("http[\S]+", text)
+    if links :
+        for link in links : 
+            text = text.replace(link, "")
 
     words = text.split()
     words = list(map( lambda x: x.lower(),words))
@@ -54,8 +45,6 @@ def norm(text):
     text = " ".join(words)
     return text
     
-
-            
 
 data = load_data_into_mem()
 random.shuffle(data)
