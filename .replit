@@ -1,0 +1,2 @@
+language = "python3"
+run = "./configure && python main.py && python -m http.server 8000"
