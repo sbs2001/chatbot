@@ -1,11 +1,13 @@
-from textblob.classifiers import NaiveBayesClassifier
-import nltk
 import csv
-import re
-from nltk.corpus import stopwords 
 import random
+import re
+
+import nltk
+from nltk.corpus import stopwords 
+from textblob.classifiers import NaiveBayesClassifier
 
 stp = set(stopwords.words('english')) 
+
 def load_data_into_mem():
     data = []
     with open('final_dataset.csv') as f : 
@@ -46,11 +48,12 @@ def sanitize_text(text):
     return text
     
 
-data = load_data_into_mem()
-random.shuffle(data)
-all_data = normalize_data(data)
-all_data = [z for z in all_data if z[1] == "yes" or len(z[0]) > 50]
-train = all_data[:int(0.9*len(all_data))]
-test = all_data[int(0.9*len(all_data)):]
-classi = NaiveBayesClassifier(train)
-print(classi.accuracy(test))
+def train_model():
+    data = load_data_into_mem()
+    random.shuffle(data)
+    all_data = normalize_data(data)
+    all_data = [z for z in all_data if z[1] == "yes" or len(z[0]) > 50]
+    train = all_data[:int(0.9*len(all_data))]
+    test = all_data[int(0.9*len(all_data)):]
+    classi = NaiveBayesClassifier(train)
+    print("Model has accuracy of " + str(classi.accuracy(test)*100) + "%")
